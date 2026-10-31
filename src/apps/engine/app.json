@@ -7,7 +7,7 @@
   ],
   "settings": [
     { "key": "arm", "label": "Mode", "type": "choice", "default": "off",
-      "options": [ ["off", "Test mode"], ["on", "Live mode"] ] },
+      "options": [ ["off", "Test version"], ["on", "Live version"] ] },
     { "key": "tuner", "label": "Tuning software", "type": "choice", "default": "off",
       "options": [ ["off", "Off · factory flap only (safe)"], ["mhd", "MHD · engine map, Max Cooling"] ] },
     { "key": "theme", "label": "Colour theme", "type": "choice", "default": "m_tricolour",
