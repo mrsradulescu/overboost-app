@@ -10,6 +10,7 @@
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
+const { URL } = require('url');       // (the head unit's Node has no global URL)
 const crypto = require('crypto');
 const { spawn } = require('child_process');
 
@@ -34,7 +35,7 @@ function rmrf(p) {
 function get(url, opts, hops) {
     return new Promise((resolve, reject) => {
         let u;
-        try { u = new URL(url); } catch (e) { return reject(new Error('bad link')); }
+        try { u = new URL(url); } catch (e) { return reject(new Error('bad link: ' + (e.message || e))); }
         if (u.protocol !== 'https:' || !HOSTS.test(u.hostname)) return reject(new Error('host not allowed: ' + u.hostname));
         const req = https.get({ host: u.hostname, path: u.pathname + u.search, headers: { 'User-Agent': 'overboost-updater', Accept: opts && opts.accept || '*/*' }, timeout: 20000 }, (res) => {
             if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
