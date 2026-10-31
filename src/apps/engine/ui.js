@@ -52,10 +52,10 @@ function draw(cv, G, t, v, act) {
     const col = word === 'OPEN' ? (t.accent2 || '#81c4ff') : word === 'CLOSED' ? (t.crit || '#ef2b2d') : t.text;
     cv.text(word, W / 2, bottom - 96, 48, col, { align: 'center', font: 'bold', spacing: 2 });
 
-    // only a genuine safety block speaks up; a timeout / no-answer (car asleep) shows
-    // NOTHING, and no "sending…" clutter either.
-    if (v.error) {
-        cv.text('! ' + v.error, W / 2, bottom - 64, 14, t.crit, { align: 'center', font: 'label' });
+    // what the DME said to the last command (accepted, or why not), between the state word and the buttons
+    if (v.status && v.status.text) {
+        const kc = v.status.kind === 'ok' ? (t.ok || '#3fb950') : v.status.kind === 'bad' ? (t.crit || '#ef2b2d') : v.status.kind === 'busy' ? (t.warn || '#d29922') : t.dim;
+        cv.text(v.status.text, W / 2, bottom - 68, 26, kc, { align: 'center', font: 'bold' });
     }
 
     // --- the three mode buttons on the canvas, the selected one red — like the other
@@ -68,9 +68,9 @@ function draw(cv, G, t, v, act) {
 function drawButtons(cv, G, t, v, act, bottom) {
     act = act || {};
     const modes = [
+        { k: 'OEM', label: 'OEM', run: act.oem },
         { k: 'OPEN', label: 'Open', run: act.open },
         { k: 'CLOSED', label: 'Close', run: act.close },
-        { k: 'OEM', label: 'OEM', run: act.oem },
     ];
     const bw = 236, bh = 56, gap = 30, by = bottom - 56;
     let bx = (W - (modes.length * bw + (modes.length - 1) * gap)) / 2;

@@ -44,7 +44,12 @@ mgu.run({
             if (list.indexOf(page) < 0) page = list[0];
             const v = {
                 requested: st.flap, confirmed: st.flapOk === true ? st.flap : 'UNKNOWN', simulated: !st.armed,
-                error: st.flapOk === false ? (st.note || 'not accepted') : null,
+                error: null,
+                status: st.busy ? { text: 'Sending the command to the DME...', kind: 'busy' }
+                    : !st.armed ? { text: 'Test mode: nothing is sent to the car', kind: 'dim' }
+                    : st.flapOk === true ? { text: (st.note || 'DME accepted the command'), kind: 'ok' }
+                    : st.flapOk === false ? { text: 'Not accepted - ' + (st.note || 'no reason given'), kind: 'bad' }
+                    : { text: '', kind: '' },
                 pages: list, page,
                 tune: {
                     armed: st.armed, tuner: st.platform, features: { map: true, cooling: true },
