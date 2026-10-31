@@ -299,9 +299,10 @@ async function main() {
     await ctlPromise;
     const initial = app.getLastExecutedEntryPointUuid();
     if (initial && ['ENTRY_POINT', 'BOOKMARK', 'LUM'].indexOf(String(app.startReason)) >= 0) {
-        for (let i = 0; i < 5; i++) {
+        // the HMI may not know this app's screen yet (INVALID_UUID right after an install or a restart): keep trying, for about 40 s
+        for (let i = 0; i < 27; i++) {
             if (await showScreen(initial, 'cold-start')) break;
-            await new Promise((r) => setTimeout(r, 1500 * (i + 1)));
+            await new Promise((r) => setTimeout(r, 1500));
         }
     }
 }

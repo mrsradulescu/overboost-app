@@ -80,5 +80,11 @@
       "ccList": "rs",
       "newCCMessage": "rs"
     }
+  },
+  "de.bmw.infotainment.controlelements.FrontCCU": {
+    "instances": "1",
+    "attributes": {
+      "statusRotaryEncoderState": "rs"
+    }
   }
 }

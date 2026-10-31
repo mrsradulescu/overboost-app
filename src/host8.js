@@ -253,6 +253,32 @@ function create(opts) {
         if (s.front && host.noGpuUntil > Date.now()) { host.noGpuUntil = 0; host.changed(); }
     });
     gpu.on('renderer-error', (m) => host.log('GPU error ' + m));
+    /* The renderer says controller: false (the HMI's controller gate is not installed): read the iDrive controller
+     * ourselves from FrontCCU and hand its events to the screens as the renderer would. */
+    const FCCU = 'de.bmw.infotainment.controlelements.FrontCCU';
+    const num = (v, fallback) => (typeof v === 'number' ? v : fallback);
+    const pushNo = (v) => (typeof v === 'number' ? v : /LANG/.test(String(v)) ? 2 : /KURZ|GEDRUECKT/.test(String(v)) && !/KEINE/.test(String(v)) ? 1 : 0);
+    const deflNo = (v) => {
+        if (typeof v === 'number') return v;
+        const s = String(v), base = /NORD/.test(s) ? 1 : /OST/.test(s) ? 4 : /SUED/.test(s) ? 7 : /WEST/.test(s) ? 10 : -1;
+        return base < 0 ? 0 : base + (/LANG/.test(s) ? 1 : 0);
+    };
+    function bridgeCcu() {
+        if (host.ccuBridge || !host.signals || !host.signals.watch) return;
+        host.ccuBridge = true;
+        Promise.resolve(host.signals.watch(FCCU, '1', {
+            statusRotaryEncoderState: (v) => {
+                if (!v) return;
+                gpu.emit('ccu', {
+                    frontSequenceNumberOperatingElement: num(v.frontSequenceNumberOperatingElement, 0),
+                    frontRotaryEncoderOperation: num(v.frontRotaryEncoderOperation, 0),
+                    frontRotaryEncoderPushButton: pushNo(v.frontRotaryEncoderPushButton),
+                    frontRotaryEncoderDeflection: deflNo(v.frontRotaryEncoderDeflection),
+                });
+            },
+        }, { warn: (m) => host.log('WARN ' + m), info: (m) => host.log('INFO ' + m) })).then((r) => host.log('INFO FrontCCU controller ' + (r && r.error ? 'unavailable: ' + r.error : 'read here (the renderer has no controller gate)'))).catch((e) => host.log('WARN FrontCCU ' + e));
+    }
+    gpu.on('ready', () => { if (gpu.info && !gpu.info.controller) bridgeCcu(); });
     host.changed = () => { try { if (opts.onChange) opts.onChange(); } catch (e) { host.log('ERROR onChange ' + e); } };
 
     function connect() {
