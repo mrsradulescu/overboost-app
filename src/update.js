@@ -2,7 +2,7 @@
 /**
  * update.js - update OVERBOOST from a GitHub release, from the car (no laptop).
  *
- * The release carries an asset "overboost-update.tar.gz" (made by tools/make_update.py): the app's JavaScript and
+ * The repo carries update/overboost-update.tar.gz and update/latest.json {version, sha256} (made by tools/make_update.py): the app's JavaScript and
  * version.json. It is unpacked into data/update/current; loader.js starts it instead of the installed code when
  * it is newer and made for the same base. Only .js / .json files are accepted, only from GitHub's own hosts.
  * What an update cannot change: the signal list, the screen layout, the icon - those need the laptop install.
@@ -16,7 +16,7 @@ const { spawn } = require('child_process');
 const ROOT = process.env.OVERBOOST_ROOT || path.resolve(__dirname, '..', '..');
 const SRC = process.env.OVERBOOST_SRC || __dirname;
 const UPD = path.join(ROOT, 'data', 'update');
-const HOSTS = /^(api\.github\.com|github\.com|codeload\.github\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/;
+const HOSTS = /^(api\.github\.com|github\.com|codeload\.github\.com|raw\.githubusercontent\.com|objects\.githubusercontent\.com|release-assets\.githubusercontent\.com)$/;
 const MAX = 8 * 1024 * 1024;
 const ASSET = 'overboost-update.tar.gz';
 
@@ -76,11 +76,14 @@ function create(log, deps) {
         if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo())) { st.msg = 'Updates are not set up in this build'; return; }
         st.busy = true; st.found = null; st.msg = 'Checking for updates...';
         try {
-            const rel = JSON.parse((await getter('https://api.github.com/repos/' + repo() + '/releases/latest', { accept: 'application/vnd.github+json' })).toString('utf8'));
-            const asset = (rel.assets || []).filter((a) => a.name === ASSET)[0];
-            if (!asset) throw new Error('release ' + rel.tag_name + ' has no ' + ASSET);
+            // update/latest.json in the repo: { version, sha256 }; the package sits next to it
+            const raw = 'https://raw.githubusercontent.com/' + repo() + '/main/update/';
+            const rel = JSON.parse((await getter(raw + 'latest.json')).toString('utf8'));
+            if (!rel.version || !/^[0-9a-f]{64}$/.test(rel.sha256 || '')) throw new Error('latest.json is not valid');
+            rel.tag_name = rel.version;
+            const asset = { browser_download_url: raw + ASSET, size: 0 };
             const have = cur() ? cur().version : base.version;
-            st.found = { tag: rel.tag_name, url: asset.browser_download_url, size: asset.size, newer: cmp(rel.tag_name, have) > 0 };
+            st.found = { tag: rel.tag_name, url: asset.browser_download_url, sha: rel.sha256, newer: cmp(rel.tag_name, have) > 0 };
             st.checkedAt = Date.now();
             st.msg = st.found.newer ? 'Update available: ' + rel.tag_name + ' (you have ' + have + ')' : 'Up to date (' + have + ')';
         } catch (e) { st.msg = 'Check failed: ' + (e.message || e); st.checkedAt = Date.now(); log.warn(st.msg); }
@@ -94,6 +97,7 @@ function create(log, deps) {
             mkdirs(UPD);
             const buf = await getter(st.found.url);
             const sha = crypto.createHash('sha256').update(buf).digest('hex');
+            if (sha !== st.found.sha) throw new Error('package does not match its checksum');
             const pkg = path.join(UPD, 'pkg.tar.gz'), nw = path.join(UPD, 'new');
             fs.writeFileSync(pkg, buf);
             const names = (await run('tar', ['tzf', pkg])).split('\n').filter(Boolean);

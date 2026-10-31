@@ -7,7 +7,7 @@ import json, sys, tarfile
 from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ver = json.loads((ROOT / 'app/version.json').read_text())
-out = ROOT / 'dist' / 'overboost-update.tar.gz'
+out = ROOT / 'update' / 'overboost-update.tar.gz'
 out.parent.mkdir(exist_ok=True)
 with tarfile.open(out, 'w:gz') as t:
     for f in sorted((ROOT / 'src').glob('*.js')):
@@ -15,4 +15,6 @@ with tarfile.open(out, 'w:gz') as t:
             continue          # the loader is part of the install, not of an update
         t.add(f, arcname=f.name)
     t.add(ROOT / 'app/version.json', arcname='version.json')
+import hashlib
+(ROOT / 'update' / 'latest.json').write_text(json.dumps({'version': ver['version'], 'sha256': hashlib.sha256(out.read_bytes()).hexdigest()}, indent=1) + '\n')
 print(out, 'version', ver['version'], 'base', ver['base'])

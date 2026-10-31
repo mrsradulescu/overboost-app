@@ -14,9 +14,10 @@ The logic comes from the open-source idrive7-apps project; the screens are plain
 * Installing OVERBOOST with 8d already replaces the logger, so uninstalling the logger first is optional.
 
 ## In-car update
-`Update` -> `Check for updates` -> `Update now` -> `Restart OVERBOOST`. The GitHub source is built into the app
-(not shown). Put the updater package in a GitHub release:
-1. Raise `version` in `overboost/app/version.json` (keep `base`), run `python tools/make_update.py`.
-2. Create a release whose **tag equals the version** (`1.0.1` or `v1.0.1`) and attach `dist/overboost-update.tar.gz`.
+`Update` -> `Check for updates` -> `Update now` -> `Restart OVERBOOST`. The GitHub source (mrsradulescu/overboost-app) is built
+into the app and not shown. To publish a new version:
+1. Raise `version` in `app/version.json` (keep `base`), run `python tools/make_update.py`.
+2. Commit and push `update/overboost-update.tar.gz` and `update/latest.json` (it holds the version and the SHA-256 checksum;
+   the car refuses a package that does not match it).
 An update replaces the app's JavaScript only. A change to the signal list, the screen layout or the icon needs the laptop
 install again (then raise `base`). The head unit needs an internet connection for this.
