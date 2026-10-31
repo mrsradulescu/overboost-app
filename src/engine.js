@@ -63,7 +63,7 @@ function create(signals, log) {
 
     async function setFlap(mode) {          // OEM | OPEN | CLOSED
         st.flap = mode; st.flapOk = null;
-        if (!st.armed) { st.flapOk = 'sim'; st.note = 'Simulated (disarmed): nothing sent'; return; }
+        if (!st.armed) { st.flapOk = 'sim'; st.note = 'Test mode: nothing sent to the car'; return; }
         if (!link()) { st.flapOk = false; st.note = 'Diagnostic link not ready'; return; }
         await guarded('flap ' + mode, async () => {
             let ok, detail;
@@ -79,14 +79,14 @@ function create(signals, log) {
     }
     async function setMap(n) {
         st.map = n; st.mapOk = null;
-        if (!st.armed) { st.mapOk = 'sim'; st.note = 'Simulated (disarmed): nothing sent'; return; }
+        if (!st.armed) { st.mapOk = 'sim'; st.note = 'Test mode: nothing sent to the car'; return; }
         if (st.platform !== 'mhd') { st.mapOk = false; st.note = 'Engine map needs the MHD platform'; return; }
         if (!link()) { st.mapOk = false; st.note = 'Diagnostic link not ready'; return; }
         await guarded('map ' + n, async () => { const r = await mhd(MHD.MAP, n - 1); st.mapOk = r.ok; st.note = 'Map ' + n + ': ' + r.detail; log.info(st.note); });
     }
     async function setCooling(on) {
         st.cooling = on; st.coolingOk = null;
-        if (!st.armed) { st.coolingOk = 'sim'; st.note = 'Simulated (disarmed): nothing sent'; return; }
+        if (!st.armed) { st.coolingOk = 'sim'; st.note = 'Test mode: nothing sent to the car'; return; }
         if (st.platform !== 'mhd') { st.coolingOk = false; st.note = 'Max Cooling needs the MHD platform'; return; }
         if (!link()) { st.coolingOk = false; st.note = 'Diagnostic link not ready'; return; }
         await guarded('cooling', async () => { const r = await mhd(MHD.COOLING, on ? 1 : 0); st.coolingOk = r.ok; st.note = 'Max Cooling ' + (on ? 'on' : 'off') + ': ' + r.detail; log.info(st.note); });

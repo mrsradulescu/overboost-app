@@ -6,8 +6,8 @@
     { "name": "MAIN", "kind": "canvas", "title": "Engine Config", "buttons": [ ["BTN_SETTINGS", "Settings"] ] }
   ],
   "settings": [
-    { "key": "arm", "label": "Control mode", "type": "choice", "default": "off",
-      "options": [ ["off", "Simulated version (testing)"], ["on", "Live version"] ] },
+    { "key": "arm", "label": "Mode", "type": "choice", "default": "off",
+      "options": [ ["off", "Test mode"], ["on", "Live mode"] ] },
     { "key": "tuner", "label": "Tuning software", "type": "choice", "default": "off",
       "options": [ ["off", "Off · factory flap only (safe)"], ["mhd", "MHD · engine map, Max Cooling"] ] },
     { "key": "theme", "label": "Colour theme", "type": "choice", "default": "m_tricolour",
