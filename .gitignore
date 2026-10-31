@@ -1,0 +1,5 @@
+dist/
+.local/
+__pycache__/
+# BMW's fault-text database: not published; the toolkit zip carries it (src/dtc_db.pack) and the install packs it
+src/dtc_db.pack
