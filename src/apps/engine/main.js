@@ -15,7 +15,6 @@ mgu.run({
         const { ui, settings, host } = ctx;
         const engine = host.svc && host.svc.engine;
         const st = engine ? engine.st : null;
-        settings.set('arm', 'off');                       // never armed from an earlier session
         let page = 'Exhaust Flap', angle = 0.18;
         let probed = false;
 

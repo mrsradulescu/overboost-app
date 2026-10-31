@@ -90,10 +90,6 @@ async function startApp(rhmi) {
     } catch (e) { log('WARN GPU screens unavailable: ' + (e.stack || e)); host = null; }
     const say = (t) => { flash = { t, until: Date.now() + 5000 }; refresh(); };
     const go = (s) => {
-        if (!['ENGINE', 'FLAP', 'MAP'].includes(s) && engine && engine.st.armed) {
-            engine.st.armed = false; log('INFO Engine Config disarmed (left it)');
-            try { const es = host && host.sessions.engine; if (es) es.settings.set('arm', 'off'); } catch (e) { /* none */ }
-        }
         if (s === 'MENU') s = 'VITALS';      // no menu page: the apps' header switches between them
         screen = s; refresh();
     };
