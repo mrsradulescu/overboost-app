@@ -1,0 +1,29 @@
+{
+  "title": "BC / ECU Logger",
+  "labels": [
+    ["LOG_STATUS", "Log: starting"],
+    ["ECU_STATUS", "ECU: off"],
+    ["ECU_MENU", "BC menu: -"],
+    ["MESSAGE", "Hold BC 5 s, then short presses; the lamp blinks tell the menu"]
+  ],
+  "buttons": [
+    ["BTN_ECU", "ECU reading: start"],
+    ["BTN_LOG", "Logging: pause"],
+    ["BTN_SWEEP", "ECU sweep: start"],
+    ["BTN_NEWFILE", "Start a new log file"],
+    ["BTN_MARK_BCLONG", "MARK  BC held 5 s"],
+    ["BTN_MARK_BCSHORT", "MARK  BC short press"],
+    ["BTN_MARK_BL1", "SHOWS  1 blink (menu 1, maps)"],
+    ["BTN_MARK_BL2", "SHOWS  2 blinks (menu 2, valves)"],
+    ["BTN_MARK_BL3", "SHOWS  3 blinks (menu 3, ethanol)"],
+    ["BTN_MARK_MM1", "NEEDLE  position 1 (map 1)"],
+    ["BTN_MARK_MM2", "NEEDLE  position 2 (map 2)"],
+    ["BTN_MARK_MM3", "NEEDLE  position 3 (map 3)"],
+    ["BTN_MARK_MM4", "NEEDLE  position 4 (map 4)"],
+    ["BTN_MARK_V0", "NEEDLE  position 0 (valves OEM)"],
+    ["BTN_MARK_V1", "NEEDLE  position 1 (valves open)"],
+    ["BTN_MARK_V2", "NEEDLE  position 2 (valves closed)"],
+    ["BTN_MARK_ETH", "NEEDLE  ethanol reading shown"],
+    ["BTN_MARK_X", "MARK  custom"]
+  ]
+}

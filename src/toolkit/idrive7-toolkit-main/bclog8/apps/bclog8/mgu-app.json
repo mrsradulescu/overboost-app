@@ -1,0 +1,23 @@
+{
+  "schema": 1,
+  "id": "bclog8",
+  "version": "0.3.0",
+  "tree": "bclog8@0.3.0",
+  "modules": [
+    "src/main.js",
+    "src/logger.js",
+    "src/ecu.js",
+    "src/diag.js",
+    "src/transport.js"
+  ],
+  "sdk": [
+    "oap-sdk/src/rhmi/RhmiManager",
+    "oap-sdk/src/rhmi/RhmiResourcesLocator",
+    "oap-sdk/src/rhmi/MultiLanguageStringBundleFactory",
+    "oap-sdk/src/rhmi/RhmiApplicationFactory",
+    "oap-sdk/src/rhmi/ResourceManager",
+    "oap-sdk/src/core/CurrentVehicleUnits",
+    "oap-sdk/src/someip/someipBuilders",
+    "oap-sdk/src/core/OnlineAppBackground"
+  ]
+}

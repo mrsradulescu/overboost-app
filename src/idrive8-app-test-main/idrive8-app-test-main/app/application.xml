@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application>
+    <container id="1" type="state" widget="LT_State_Wide_List">
+        <layoutGroup id="26" name="List">
+            <property id="3" value="1"/>
+            <component id="2" type="label" widget="LT_ScrollLabel">
+                <property id="2" value="1"/>
+                <property id="3" value="1"/>
+            </component>
+            <component id="3" type="label" widget="LT_ScrollLabel">
+                <property id="2" value="1"/>
+                <property id="3" value="1"/>
+            </component>
+            <component id="4" type="label" widget="LT_ScrollLabel">
+                <property id="2" value="1"/>
+                <property id="3" value="1"/>
+            </component>
+            <component id="5" type="label" widget="LT_ScrollLabel">
+                <property id="2" value="1"/>
+                <property id="3" value="1"/>
+            </component>
+            <component id="6" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="7" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="8" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="9" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="10" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="11" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="12" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="13" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="14" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="15" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="16" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="17" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="18" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="19" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="20" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="21" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="22" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+            <component id="23" type="button">
+                <property id="2" value="1"/>
+                <property id="3" value="2"/>
+            </component>
+        </layoutGroup>
+        <layoutGroup id="25" name="Titlebar">
+            <component id="24" type="title"/>
+        </layoutGroup>
+    </container>
+</application>

@@ -1,0 +1,288 @@
+{
+  "id": "bclog",
+  "title": "BC Logger",
+  "description": "Passive recorder: logs every signal the head unit sees while you use the BC button, the steering-wheel thumb wheel or a cluster menu. Sends nothing to the car",
+  "version": "0.1.0",
+  "vendor": "custom",
+  "loggingId": "OA9G",
+  "maxDiskUsage": 104857600,
+  "iconGlyph": "LOG",
+  "signals": {
+    "de.bmw.infotainment.controlelements.FrontCCU": {
+      "statusRotaryEncoderState": "rs",
+      "statusPushButtonsState": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.KombiInterface_2": {
+      "ccList": "rs",
+      "newCCMessage": "rs",
+      "cbsDataServiceList": "rs",
+      "cbsDataSBA": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.checkcontrol.CheckControlMaster": {
+      "basicList": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.vehicle.CDS": {
+      "statusEngineSpeed2": "rs",
+      "statusEngineTemperature": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.vehicle.Vehicle2": {
+      "statusCarSpeed2": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.drivingexcitement.FES": {
+      "statusSwitchDriveDynamicSport2": "rs",
+      "statusVehicleDynamicEngine": "rs",
+      "statusActualValueTorque2": "rs",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infotainment.misc.MDrive": {
+      "statusMSystem": "rs",
+      "dataDisplayGearbox": "s",
+      "_optional": "log of this interface"
+    },
+    "de.bmw.infrastructure.VehicleInformation": {
+      "statusGearboxDrive": "s",
+      "DataPowerTrain2": "s",
+      "_optional": "log of this interface"
+    }
+  },
+  "screens": [
+    {
+      "name": "MAIN",
+      "kind": "menu",
+      "title": "BC Logger",
+      "settings": true,
+      "items": [
+        [
+          "text",
+          "LOG_STATUS",
+          ""
+        ],
+        [
+          "text",
+          "LOG_STATUS2",
+          ""
+        ],
+        [
+          "text",
+          "LOG_LAST",
+          ""
+        ],
+        [
+          "text",
+          "LOG_FILE",
+          ""
+        ],
+        [
+          "button",
+          "BTN_LOG",
+          "Pause / resume logging"
+        ],
+        [
+          "button",
+          "BTN_MARK_BC",
+          "MARK  BC button pressed"
+        ],
+        [
+          "button",
+          "BTN_MARK_UP",
+          "MARK  wheel up"
+        ],
+        [
+          "button",
+          "BTN_MARK_DOWN",
+          "MARK  wheel down"
+        ],
+        [
+          "button",
+          "BTN_MARK_MM1",
+          "SHOWS  multimap 1"
+        ],
+        [
+          "button",
+          "BTN_MARK_MM2",
+          "SHOWS  multimap 2"
+        ],
+        [
+          "button",
+          "BTN_MARK_MM3",
+          "SHOWS  multimap 3"
+        ],
+        [
+          "button",
+          "BTN_MARK_MM4",
+          "SHOWS  multimap 4"
+        ],
+        [
+          "button",
+          "BTN_MARK_V0",
+          "SHOWS  valve 0 (OEM)"
+        ],
+        [
+          "button",
+          "BTN_MARK_V1",
+          "SHOWS  valve 1 (open)"
+        ],
+        [
+          "button",
+          "BTN_MARK_V2",
+          "SHOWS  valve 2 (closed)"
+        ],
+        [
+          "button",
+          "BTN_MARK_ETH",
+          "SHOWS  ethanol screen"
+        ],
+        [
+          "button",
+          "BTN_MARK_X",
+          "MARK  custom"
+        ],
+        [
+          "button",
+          "BTN_NEWFILE",
+          "Start a new log file"
+        ]
+      ]
+    }
+  ],
+  "settings": [
+    {
+      "key": "autoStart",
+      "label": "Log from app start",
+      "type": "bool",
+      "default": true
+    },
+    {
+      "key": "minMs",
+      "label": "Min. gap per signal",
+      "type": "number",
+      "unit": "ms",
+      "default": 50,
+      "steps": [
+        0,
+        20,
+        50,
+        100,
+        250,
+        1000
+      ]
+    },
+    {
+      "key": "cap",
+      "label": "Max. lines per second",
+      "type": "number",
+      "unit": "/s",
+      "default": 1000,
+      "steps": [
+        200,
+        500,
+        1000,
+        3000
+      ]
+    },
+    {
+      "key": "fileMB",
+      "label": "New file after",
+      "type": "number",
+      "unit": "MB",
+      "default": 10,
+      "steps": [
+        2,
+        5,
+        10,
+        20
+      ]
+    }
+  ],
+  "config": {
+    "capMB": 40,
+    "watch": {
+      "de.bmw.infotainment.controlelements.FrontCCU": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusRotaryEncoderState",
+          "statusPushButtonsState"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.KombiInterface_2": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "ccList",
+          "newCCMessage",
+          "cbsDataServiceList",
+          "cbsDataSBA"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.checkcontrol.CheckControlMaster": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "basicList"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.vehicle.CDS": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusEngineSpeed2",
+          "statusEngineTemperature"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.vehicle.Vehicle2": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusCarSpeed2"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.drivingexcitement.FES": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusSwitchDriveDynamicSport2",
+          "statusVehicleDynamicEngine",
+          "statusActualValueTorque2"
+        ],
+        "events": []
+      },
+      "de.bmw.infotainment.misc.MDrive": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusMSystem",
+          "dataDisplayGearbox"
+        ],
+        "events": []
+      },
+      "de.bmw.infrastructure.VehicleInformation": {
+        "instances": [
+          "1"
+        ],
+        "fields": [
+          "statusGearboxDrive",
+          "DataPowerTrain2"
+        ],
+        "events": []
+      }
+    }
+  }
+}

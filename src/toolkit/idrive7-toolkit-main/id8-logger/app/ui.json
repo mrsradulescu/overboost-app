@@ -1,0 +1,75 @@
+{
+ "title": "BC / ECU Logger",
+ "items": [
+  [
+   "label",
+   "LOG_STATUS",
+   "Log: starting"
+  ],
+  [
+   "label",
+   "ECU_STATUS",
+   "ECU: off"
+  ],
+  [
+   "button",
+   "BTN_ECU",
+   "ECU reading: start"
+  ],
+  [
+   "button",
+   "BTN_TARGET",
+   "ECU target: DME (engine)  (press to change)"
+  ],
+  [
+   "label",
+   "MESSAGE",
+   "Valves: set position, wait 3 s, press its button, keep still until the snapshot ends"
+  ],
+  [
+   "button",
+   "BTN_MARK_V0",
+   "NEEDLE  position 0 (valves OEM)"
+  ],
+  [
+   "button",
+   "BTN_MARK_V1",
+   "NEEDLE  position 1 (valves open)"
+  ],
+  [
+   "button",
+   "BTN_MARK_V2",
+   "NEEDLE  position 2 (valves closed)"
+  ],
+  [
+   "label",
+   "MESSAGE2",
+   "-"
+  ],
+  [
+   "button",
+   "BTN_LOG",
+   "Logging: pause"
+  ],
+  [
+   "button",
+   "BTN_SWEEP",
+   "ECU sweep: start"
+  ],
+  [
+   "button",
+   "BTN_NEWFILE",
+   "Start a new log file"
+  ],
+  [
+   "button",
+   "BTN_MARK_BL2",
+   "SHOWS  2 blinks (menu 2, valves)"
+  ],
+  [
+   "button",
+   "BTN_MARK_X",
+   "MARK  custom"
+  ]
+ ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "mgu-render",
+  "kind": "tool",
+  "version": "0.6.8",
+  "title": "Renderer",
+  "description": "Draws apps' screens on the GPU, over the HMI or inside the app's page",
+  "mguProvides": "renderer",
+  "mguHmi": [
+    "ID7",
+    "ID8"
+  ],
+  "optional": true,
+  "requires": {},
+  "uninstallable": true,
+  "files": [
+    {
+      "path": "mgu-render",
+      "from": "build/target/mgu-render",
+      "mode": "0755"
+    },
+    {
+      "path": "mgu-render.conf",
+      "from": "mgu-render.conf",
+      "mode": "0644"
+    },
+    {
+      "path": "foreground_gate.js",
+      "from": "js/foreground_gate.js",
+      "mode": "0644"
+    },
+    {
+      "path": "mgu_render_client.js",
+      "from": "js/mgu_render_client.js",
+      "mode": "0644"
+    },
+    {
+      "path": "render_check.js",
+      "from": "js/render_check.js",
+      "mode": "0644"
+    },
+    {
+      "path": "LICENSE.mgu-renderd",
+      "from": "LICENSE.mgu-renderd",
+      "mode": "0644"
+    }
+  ],
+  "units": [
+    {
+      "name": "mgu-render.socket",
+      "from": "systemd/mgu-render.socket"
+    },
+    {
+      "name": "mgu-render.service",
+      "from": "systemd/mgu-render.service"
+    }
+  ],
+  "enable": [
+    {
+      "unit": "mgu-render.socket",
+      "target": "sockets.target"
+    }
+  ],
+  "recmgr": [
+    "mgu-render"
+  ],
+  "restart": [
+    "mgu-render.service"
+  ],
+  "keepRunning": true,
+  "check": [
+    "render_check.js"
+  ]
+}

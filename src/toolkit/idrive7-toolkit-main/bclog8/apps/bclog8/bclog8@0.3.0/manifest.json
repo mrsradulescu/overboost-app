@@ -1,0 +1,131 @@
+{
+  "proxies": {
+    "de.bmw.infotainment.certification.Certification": "*",
+    "de.bmw.infotainment.hmi.entrypoint2.EntryPoint2": "*",
+    "de.bmw.infotainment.hmi.entrypoint2.EntryPointManager2": "*",
+    "de.bmw.infotainment.hmi.remote2.RemoteHmi2": "*",
+    "de.bmw.infotainment.hmi.remote2.RemoteHmiApplication2": "*",
+    "de.bmw.infotainment.hmi.resourcemanagement2.ResourceBundle2": "*",
+    "de.bmw.infotainment.hmi.resourcemanagement2.ResourceManager2": "*",
+    "de.bmw.infotainment.hmi.resourcemanagement2.StringBundle2": "*",
+    "de.bmw.infotainment.hmi.usecasemanagement.UseCaseContext": {
+      "instances": "*",
+      "broadcasts": [
+        "notify"
+      ],
+      "methods": [
+        "setObservedContextKeys"
+      ]
+    },
+    "de.bmw.infotainment.hmi.usecasemanagement.UseCaseInstance": "*",
+    "de.bmw.infotainment.hmi.usecasemanagement.UseCaseProvider": "*",
+    "de.bmw.infotainment.hmi.usecasemanagement.UseCaseRegistry": {
+      "instances": "*",
+      "attributes": {
+        "useCaseIds": "r"
+      },
+      "broadcasts": [
+        "registryUpdate"
+      ],
+      "methods": [
+        "getProvider"
+      ]
+    },
+    "de.bmw.infotainment.personalization.SessionManager": "*",
+    "de.bmw.infotainment.personalization.UserAccountManager": "*",
+    "de.bmw.infotainment.telematic.oap.AppStatus": "*",
+    "de.bmw.infotainment.telematic.oap.WodControl": {
+      "instances": "${userId}",
+      "methods": [
+        "offerService",
+        "stopOfferingService"
+      ]
+    },
+    "de.bmw.infotainment.telematic.oapcontroller.OAPController": "*",
+    "org.genivi.nodestatemanager.Consumer": {
+      "instances": "NSMConsumer",
+      "broadcasts": [
+        "ShutdownEvents",
+        "SessionStateChanged"
+      ],
+      "methods": [
+        "LifecycleRequestComplete",
+        "RegisterShutdownClient",
+        "UnRegisterShutdownClient"
+      ]
+    },
+    "de.bmw.infotainment.controlelements.FrontCCU": {
+      "instances": "1",
+      "attributes": {
+        "statusRotaryEncoderState": "rs",
+        "statusPushButtonsState": "rs"
+      }
+    },
+    "de.bmw.infotainment.KombiInterface_2": {
+      "instances": "1",
+      "attributes": {
+        "ccList": "rs",
+        "newCCMessage": "rs",
+        "cbsDataServiceList": "rs",
+        "cbsDataSBA": "rs"
+      }
+    },
+    "de.bmw.infotainment.checkcontrol.CheckControlMaster": {
+      "instances": "1",
+      "attributes": {
+        "basicList": "rs"
+      }
+    },
+    "de.bmw.infotainment.vehicle.CDS": {
+      "instances": "1",
+      "attributes": {
+        "statusEngineSpeed2": "rs",
+        "statusEngineTemperature": "rs"
+      }
+    },
+    "de.bmw.infotainment.vehicle.Vehicle2": {
+      "instances": "1",
+      "attributes": {
+        "statusCarSpeed2": "rs"
+      }
+    },
+    "de.bmw.infotainment.drivingexcitement.FES": {
+      "instances": "1",
+      "attributes": {
+        "statusSwitchDriveDynamicSport2": "rs",
+        "statusVehicleDynamicEngine": "rs",
+        "statusActualValueTorque2": "rs"
+      }
+    },
+    "de.bmw.infotainment.misc.MDrive": {
+      "instances": "1",
+      "attributes": {
+        "statusMSystem": "rs",
+        "dataDisplayGearbox": "s"
+      }
+    },
+    "de.bmw.infrastructure.VehicleInformation": {
+      "instances": "1",
+      "attributes": {
+        "statusGearboxDrive": "s",
+        "DataPowerTrain2": "s"
+      }
+    },
+    "com.harman.infotainment.systemfunctions.tasu.tasu.InternalTasu": {
+      "instances": "SystemFunctionsInternalTasuInst1",
+      "broadcasts": [
+        "sendTasuResponse"
+      ],
+      "methods": [
+        "sendTasuRequest"
+      ]
+    }
+  },
+  "services": {
+    "de.bmw.infotainment.telematic.oap.AppStatus": {
+      "instances": [
+        "${userId}"
+      ]
+    }
+  }
+}

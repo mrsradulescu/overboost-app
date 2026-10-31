@@ -1,0 +1,60 @@
+{
+  "de.bmw.infotainment.controlelements.FrontCCU": {
+    "instances": "1",
+    "attributes": {
+      "statusRotaryEncoderState": "rs",
+      "statusPushButtonsState": "rs"
+    }
+  },
+  "de.bmw.infotainment.KombiInterface_2": {
+    "instances": "1",
+    "attributes": {
+      "ccList": "rs",
+      "newCCMessage": "rs",
+      "cbsDataServiceList": "rs",
+      "cbsDataSBA": "rs"
+    },
+    "all": true
+  },
+  "de.bmw.infotainment.checkcontrol.CheckControlMaster": {
+    "instances": "1",
+    "attributes": {
+      "basicList": "rs"
+    }
+  },
+  "de.bmw.infotainment.vehicle.CDS": {
+    "instances": "1",
+    "attributes": {
+      "statusEngineSpeed2": "rs",
+      "statusEngineTemperature": "rs"
+    }
+  },
+  "de.bmw.infotainment.vehicle.Vehicle2": {
+    "instances": "1",
+    "attributes": {
+      "statusCarSpeed2": "rs"
+    }
+  },
+  "de.bmw.infotainment.drivingexcitement.FES": {
+    "instances": "1",
+    "attributes": {
+      "statusSwitchDriveDynamicSport2": "rs",
+      "statusVehicleDynamicEngine": "rs",
+      "statusActualValueTorque2": "rs"
+    }
+  },
+  "de.bmw.infotainment.misc.MDrive": {
+    "instances": "1",
+    "attributes": {
+      "statusMSystem": "rs",
+      "dataDisplayGearbox": "s"
+    }
+  },
+  "de.bmw.infrastructure.VehicleInformation": {
+    "instances": "1",
+    "attributes": {
+      "statusGearboxDrive": "s",
+      "DataPowerTrain2": "s"
+    }
+  }
+}
