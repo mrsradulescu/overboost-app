@@ -52,6 +52,12 @@ const clip = (s, n) => (s.length > n ? s.slice(0, n - 1) + '~' : s);
 const sec = (v) => (num(v) ? v.toFixed(2) + ' s' : '-');
 
 /* ---------------- the app ---------------- */
+// the renderer (GPU) connects only once the HMI's screen has been opened (or after 5 s): the first frames of the
+// app block this process for about two seconds, and a screen opened after that is refused (INVALID_UUID)
+let openGate = null;
+const gate = new Promise((r) => { openGate = r; });
+setTimeout(() => openGate(), 6000).unref();
+
 async function startApp(rhmi) {
     const ui = new Ui(app, log, ROOT);
     let signals = null;
@@ -78,7 +84,7 @@ async function startApp(rhmi) {
     let host = null, mode = 'text';
     try {
         host = require('./host8').create({
-            log, dataDir: DATA, signals, version: upd.base.version, appId: 'overboost',
+            connectAfter: gate, log, dataDir: DATA, signals, version: upd.base.version, appId: 'overboost',
             go: (s) => go(s), onChange: () => refresh(),
             status: () => ({
                 car: link(), carLive: live.present(), update: upd.st.found,
@@ -326,6 +332,7 @@ async function main() {
             await new Promise((r) => setTimeout(r, 1000));
         }
     }
+    openGate();
     await ctlPromise;
 }
 main().catch((e) => { log('START_FAILED ' + (e.stack || e)); process.exit(1); });

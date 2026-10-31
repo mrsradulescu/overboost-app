@@ -292,7 +292,7 @@ function create(opts) {
         if (RenderClient.available()) { gpu.connect(); return; }
         host.poll = setTimeout(connect, 5000);
     }
-    if (!opts.gpu) connect();
+    if (!opts.gpu) Promise.resolve(opts.connectAfter).then(connect);
 
     host.available = () => !!(gpu.ready && gpu.native && gpu.touch);
     /** draw with the GPU: the renderer is there, and the current screen is not kept off the screen by the gate */
