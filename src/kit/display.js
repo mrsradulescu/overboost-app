@@ -177,6 +177,7 @@ class Display {
         on('touch', (phase, x, y) => { if (this.gpu === gpu) this._touch(phase, x, y); });
         on('closed', () => this.closedTimer = setTimeout(() => { if (this.gpu === gpu) this._syncVisible(); }, 700));
         G.onLayerDrop((id) => { if (this.gpu) this.gpu.dropLayer(id); });
+        if (this.spec.__chips) this.chips = this.spec.__chips;     // (the header's height is part of the very first placement)
         if (gpu.ready) { this._place(); this._syncVisible(true); }
         if (this.grabbing) gpu.grab(true);
     }
@@ -873,7 +874,8 @@ class Display {
     barH() {
         if (this.screen && (this.screen.bar === false || this.screen.chrome === false)) return 0;
         // the kit's bar with nothing left on it (its buttons on the page, Settings a tab): no bar
-        return this.ownable() && !this.buttons().length ? 0 : FULL.barH;
+        // OVERBOOST: graphics only, no bar - from the first placement on (it used to settle only after the app hid its buttons: a visible zoom)
+        return this.ownable() ? 0 : FULL.barH;
     }
     /** Leave bar button id out where the kit runs the screen (the app draws it on the page there). */
     hideButton(id) {

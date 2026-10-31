@@ -137,16 +137,15 @@ class Session {
         this.ui = new GUi(L);
         this.ui.closeFn = () => host.back();
         const theme = () => themes.theme(this.settings.get('theme'));
-        this.display = new Display(this.ui, L, spec, this.settings, theme, host.gpu);
-        this.ui.display = this.display;
-        // the apps' header: the logo and a button for each app, to switch without going back to the menu
-        if (id !== 'menu') this.display.chips = {
+        if (id !== 'menu') spec.__chips = {
             items: () => [{ label: 'M Vitals', screen: 'VITALS' }, { label: 'Drag Timer', screen: 'DRAG' }, { label: 'Fault Scanner', screen: 'FAULTS' },
                 { label: 'Engine Config', screen: 'ENGINE' }, { label: 'Update', screen: 'UPDATE' }],
             current: () => SCREEN[id],
-            open: (k) => { const it = this.display.chips.items()[k]; if (it && it.screen !== SCREEN[id]) host.nav(it.screen); },
+            open: (k) => { const it = spec.__chips.items()[k]; if (it && it.screen !== SCREEN[id]) host.nav(it.screen); },
         };
-        if (this.display.chips && this.display.gpu) this.display._place();     // (the header is taller with the app buttons)
+        this.display = new Display(this.ui, L, spec, this.settings, theme, host.gpu);
+        this.ui.display = this.display;
+        // the apps' header: the logo and a button for each app, to switch without going back to the menu
         // graphics only: the layer stays wanted; the renderer shows it as soon as its gate has the app in front
         this.display.onBlocked = () => { host.log('WARN GPU layer not in front yet'); };
         this.ctx = this._ctx(theme);
