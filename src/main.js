@@ -72,7 +72,7 @@ async function startApp(rhmi) {
         }).catch((e) => log('ERROR diag init ' + e));
     }
 
-    let screen = 'VITALS', vpage = 'engine', flash = null, clearArm = null, armTimer = null, hiddenAt = 0, first = true;
+    let screen = 'SPLASH', vpage = 'engine', flash = null, clearArm = null, armTimer = null, hiddenAt = 0, first = true;
     // GPU screens (the idrive7-apps designs on mgu-render); without the renderer every screen is the plain rows below
     const APPS = { VITALS: 'car_vitals', DRAG: 'draggy', FAULTS: 'dtc_scanner', ENGINE: 'engine', FLAP: 'engine', MAP: 'engine', UPDATE: 'update' };
     let host = null, mode = 'text';
@@ -91,7 +91,7 @@ async function startApp(rhmi) {
     const say = (t) => { flash = { t, until: Date.now() + 5000 }; refresh(); };
     const go = (s) => {
         if (!['ENGINE', 'FLAP', 'MAP'].includes(s) && engine && engine.st.armed) { engine.st.armed = false; log('INFO Engine Config disarmed (left it)'); }
-        if (s === 'MENU' || s === 'SPLASH') s = 'VITALS';      // no menu page: the apps' header switches between them
+        if (s === 'MENU') s = 'VITALS';      // no menu page: the apps' header switches between them
         screen = s; refresh();
     };
     const back = (to) => ({ t: '<  Back', f: () => go(to || 'MENU') });
@@ -237,7 +237,8 @@ async function startApp(rhmi) {
             let gpu = false;
             if (host && host.wanted()) {
                 const app = APPS[screen];
-                if (app) gpu = await host.show(app);
+                if (screen === 'SPLASH') gpu = await host.show('menu', { splash: true });
+                else if (app) gpu = await host.show(app);
             }
             if (gpu) {
                 // the HMI's own rows stay empty while the GPU draws
@@ -263,7 +264,8 @@ async function startApp(rhmi) {
         if (!on) { hiddenAt = Date.now(); if (host) host.hide(); mode = 'text'; return; }
         ui.reset();
         if (first || Date.now() - hiddenAt > 60000) {
-            first = false; screen = 'VITALS'; refresh();
+            first = false; screen = 'SPLASH'; refresh();
+            setTimeout(() => { if (screen === 'SPLASH') go('VITALS'); }, 1800);
         } else refresh();
     };
     return { refresh, ui };

@@ -147,7 +147,8 @@ class Session {
             open: (k) => { const it = this.display.chips.items()[k]; if (it && it.screen !== SCREEN[id]) host.nav(it.screen); },
         };
         if (this.display.chips && this.display.gpu) this.display._place();     // (the header is taller with the app buttons)
-        this.display.onBlocked = () => { host.noGpuUntil = Date.now() + 4000; host.log('WARN GPU layer not in front: text screens, trying again in 4 s'); host.changed(); };
+        // graphics only: the layer stays wanted; the renderer shows it as soon as its gate has the app in front
+        this.display.onBlocked = () => { host.log('WARN GPU layer not in front yet'); };
         this.ctx = this._ctx(theme);
         // the app: its start function (mgu.run in its main.js)
         require(path.join(dir, 'main.js'));
@@ -218,14 +219,18 @@ class Session {
         };
     }
 
+    /** Run the app's start function now (its loops only draw while its screen is visible). */
+    async prestart() {
+        if (this.started) return;
+        this.started = true;
+        try { await this.impl.start(this.ctx); } catch (e) { this.failed = e; this.log.error('start failed', e); }
+    }
+
     async enter(arg) {
         this.arg = arg || {};
         this.ctx.arg = this.arg;
         this.display.attach();
-        if (!this.started) {
-            this.started = true;
-            try { await this.impl.start(this.ctx); } catch (e) { this.failed = e; this.log.error('start failed', e); }
-        }
+        await this.prestart();
         this.ui._setVisible('MAIN', true);
         this.display.tickHandlers.forEach((fn) => fn());
     }
@@ -245,7 +250,10 @@ function create(opts) {
     const gpu = host.gpu = opts.gpu || new RenderClient(opts.appId || 'overboost', {
         info: (m) => host.log('INFO ' + m), warn: (m) => host.log('WARN ' + m), error: (m) => host.log('ERROR ' + m), debug() {},
     }, { native: true });
-    gpu.on('ready', () => { host.log('GPU ready ' + JSON.stringify({ screen: gpu.screen, native: gpu.native, touch: gpu.touch, info: gpu.info })); host.changed(); });
+    gpu.on('ready', () => {
+        // the first screens are made ahead (the logo and M Vitals), so opening the app only has to draw
+        setImmediate(async () => { for (const id of ['menu', 'car_vitals']) { const s = host.session(id); if (s) { try { await s.prestart(); } catch (e) { /* logged */ } } } });
+        host.log('GPU ready ' + JSON.stringify({ screen: gpu.screen, native: gpu.native, touch: gpu.touch, info: gpu.info })); host.changed(); });
     gpu.on('close', () => { host.log('GPU closed'); host.changed(); });
     gpu.on('state', (s) => {
         host.log('GPU state ' + JSON.stringify(s));
