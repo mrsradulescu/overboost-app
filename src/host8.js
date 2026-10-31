@@ -230,9 +230,9 @@ class Session {
         this.display.tickHandlers.forEach((fn) => fn());
     }
 
-    leave() {
+    leave(keep) {
+        this.display.dispose(keep);          // (first: the visibility change must not hide the layer through the display)
         this.ui._setVisible('MAIN', false);
-        this.display.dispose();
     }
 }
 
@@ -278,7 +278,7 @@ function create(opts) {
         if (!host.available()) return false;
         const cur = host.sessions[host.current];
         if (cur && host.current === id) { cur.ctx.arg = arg || {}; return true; }
-        if (cur) cur.leave();
+        if (cur) cur.leave(true);          // (the renderer keeps the last picture on screen until the next app draws: no flash of the HMI's blue)
         const s = host.session(id);
         if (!s) { host.current = null; return false; }
         host.current = id;

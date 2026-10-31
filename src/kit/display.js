@@ -177,7 +177,7 @@ class Display {
         on('touch', (phase, x, y) => { if (this.gpu === gpu) this._touch(phase, x, y); });
         on('closed', () => this.closedTimer = setTimeout(() => { if (this.gpu === gpu) this._syncVisible(); }, 700));
         G.onLayerDrop((id) => { if (this.gpu) this.gpu.dropLayer(id); });
-        if (gpu.ready) { this._place(); this._syncVisible(); }
+        if (gpu.ready) { this._place(); this._syncVisible(true); }
         if (this.grabbing) gpu.grab(true);
     }
 
@@ -185,14 +185,14 @@ class Display {
     attach() { if (!this.disposed) return; this.disposed = false; this._mode(); }
 
     /** Leave: no listeners, nothing claimed, hidden (the next app screen takes the shared connection). */
-    dispose() {
+    dispose(keep) {
         const gpu = this.gpu;
         this.disposed = true;
         clearTimeout(this.frontTimer); clearTimeout(this.closedTimer);
         if (this.sheetTimer) { clearInterval(this.sheetTimer); this.sheetTimer = null; }
         if (gpu) {
             this.listeners.forEach(([ev, fn]) => gpu.removeListener(ev, fn));
-            try { gpu.claim([]); gpu.grab(false); gpu.show(false); } catch (e) { /* closed */ }
+            try { gpu.claim([]); gpu.grab(false); if (!keep) gpu.show(false); } catch (e) { /* closed */ }
         }
         this.listeners = []; this.gpu = null;
     }
@@ -246,7 +246,9 @@ class Display {
         const tgts = (this.pageTargets || []).map((q) => ({ k: 'tgt:' + q.key, tgt: q }));
         const top = this.pageScroll && this.pageScroll.y != null ? this.pageScroll.y : -Infinity;
         const over = tgts.filter((p) => p.tgt.y + p.tgt.h <= top);
-        return tabs.concat(over, scroll, tgts.filter((p) => over.indexOf(p) < 0), this.buttons().map((b) => ({ k: 'bar:' + b.id, bar: b.id })));
+        // OVERBOOST: the app buttons of the header come first (the controller can switch apps too)
+        const chips = this.chips ? this.chips.items().map((x, i) => ({ k: 'chip:' + i, chip: i })) : [];
+        return chips.concat(tabs, over, scroll, tgts.filter((p) => over.indexOf(p) < 0), this.buttons().map((b) => ({ k: 'bar:' + b.id, bar: b.id })));
     }
     /** HMI back (the controller pushed left): the app's screen closes as with the HMI's back arrow. */
     _back() {
@@ -358,6 +360,7 @@ class Display {
         if (press && i >= 0) {
             const p = ring[i];
             if (p.tab != null) this._openTab(p.tab);
+            else if (p.chip != null && this.chips) this.chips.open(p.chip);
             else if (p.tgt) { try { Promise.resolve(p.tgt.run()).catch((e) => this.log.error('target', e)); } catch (e) { this.log.error('target', e); } this.pressed = p.k; this.pressedT = Date.now(); this._repaint(); }
             else if (p.bar) this._click(p.bar);
         }
@@ -372,6 +375,7 @@ class Display {
     /** Where place p of the ring is on screen (the surface's px): { x, y, w, h }. */
     _rectOf(p) {
         const pl = this.place, k = pl.scale;
+        if (p.chip != null) return ((this.chromeRec && this.chromeRec.tabRects) || []).find((q) => q.i === 1000 + p.chip) || null;
         if (p.tab != null) return ((this.chromeRec && this.chromeRec.tabRects) || []).find((q) => q.i === p.tab) || null;
         if (p.tgt) return { x: p.tgt.x * k + pl.ox, y: p.tgt.y * k + pl.oy, w: p.tgt.w * k, h: p.tgt.h * k };
         if (p.bar) { const b = this.buttons().find((q) => q.id === p.bar); return b ? { x: b.x - this.barOff - pl.x, y: pl.h - this.barH(), w: b.w, h: this.barH() } : null; }
@@ -403,7 +407,7 @@ class Display {
     /** The controller is on place p of the ring (null: nowhere). */
     _focus(p) {
         this.focusKey = p ? p.k : null;
-        this.focusTab = p && p.tab != null ? p.tab : null;
+        this.focusTab = p && p.tab != null ? p.tab : p && p.chip != null ? 1000 + p.chip : null;
         this.focused = p && p.bar ? p.bar : null;
         if (this.focused) this._scroll();
     }
@@ -591,9 +595,11 @@ class Display {
         return this.ui.isVisible(this.screen.name) && !this.ui.isVisible('SETTINGS') && (!this.ui.hasFocus || this.ui.hasFocus(this.screen.name));
     }
 
-    _syncVisible() {
+    _syncVisible(starting) {
         if (!this.gpu) return;
         const on = this._shown();
+        // OVERBOOST: a screen that is just starting leaves the layer as it is (the previous app's picture) until its first frame
+        if (starting && !on) return;
         if (on && !this.gpu.visible) { this.shownT = Date.now(); this.softDone = false; }
         this.gpu.show(on);
         if (on) this.lastWords = null;
