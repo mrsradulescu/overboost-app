@@ -54,7 +54,7 @@ function draw(cv, G, t, v, act) {
 
     // what the DME said to the last command (accepted, or why not), between the state word and the buttons
     if (v.status && v.status.text) {
-        const kc = v.status.kind === 'ok' ? (t.ok || '#3fb950') : v.status.kind === 'bad' ? (t.crit || '#ef2b2d') : v.status.kind === 'busy' ? (t.warn || '#d29922') : t.dim;
+        const kc = v.status.kind === 'ok' ? '#3fb950' : v.status.kind === 'bad' ? (t.crit || '#ef2b2d') : v.status.kind === 'busy' ? (t.warn || '#d29922') : t.dim;
         cv.text(v.status.text, W / 2, bottom - 68, 26, kc, { align: 'center', font: 'bold' });
     }
 
