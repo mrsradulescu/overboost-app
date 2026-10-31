@@ -1,3 +1,0 @@
-Aceste fisiere sunt unealta de instalare mgu-deploy din proiectul mgu-store (Robert Nisipeanu),
-licenta GPL-3.0 (vezi LICENSE). Sunt copiate neschimbate si folosite doar ca instalator local;
-aplicatia Store si catalogul lor NU sunt incluse si nu sunt folosite.

@@ -1,6 +1,0 @@
-{
-  "schema": 1,
-  "components": [
-    { "id": "robertn_store", "kind": "app", "path": "apps/robertn_store", "build": "unit" }
-  ]
-}
