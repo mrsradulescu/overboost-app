@@ -108,6 +108,8 @@ case "$cmd" in
         for name in data kvs share security; do
             mkdir -p "$top/$name"; chown "12201:$u" "$top/$name"; chmod 770 "$top/$name"
         done
+        # a (re)installation starts Engine Config on its defaults: Test version, factory tuning (the choices stay between starts)
+        rm -f "$top/data/engine/settings.json"
         chown -h "12201:$u" "$top"
         chown -Rh "12201:$u" "$top/source" "$top/rhmiData" "$top/someipInterfaces"
         chmod 750 "$top" "$top/source" "$top/someipInterfaces"
