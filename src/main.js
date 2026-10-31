@@ -72,10 +72,26 @@ async function startApp(rhmi) {
         }).catch((e) => log('ERROR diag init ' + e));
     }
 
-    let screen = 'SPLASH', vpage = 'engine', flash = null, clearArm = null, armTimer = null, hiddenAt = 0, first = true;
+    let screen = 'VITALS', vpage = 'engine', flash = null, clearArm = null, armTimer = null, hiddenAt = 0, first = true;
+    // GPU screens (the idrive7-apps designs on mgu-render); without the renderer every screen is the plain rows below
+    const APPS = { VITALS: 'car_vitals', DRAG: 'draggy', FAULTS: 'dtc_scanner', ENGINE: 'engine', FLAP: 'engine', MAP: 'engine', UPDATE: 'update' };
+    let host = null, mode = 'text';
+    try {
+        host = require('./host8').create({
+            log, dataDir: DATA, signals, version: upd.base.version, appId: 'overboost',
+            go: (s) => go(s), onChange: () => refresh(),
+            status: () => ({
+                car: link(), carLive: live.present(), update: upd.st.found,
+                diag: faults && faults.st.diag && faults.st.diag.available ? 'Diagnostics: ready' : 'Diagnostics: waiting',
+                diagReady: !!(faults && faults.st.diag && faults.st.diag.available),
+            }),
+        });
+        host.svc = { engine, upd, restart: () => { log('INFO restart requested'); setTimeout(() => process.exit(0), 800); } };
+    } catch (e) { log('WARN GPU screens unavailable: ' + (e.stack || e)); host = null; }
     const say = (t) => { flash = { t, until: Date.now() + 5000 }; refresh(); };
     const go = (s) => {
-        if (s === 'MENU' && engine && engine.st.armed) { engine.st.armed = false; log('INFO Engine Config disarmed (left the menu)'); }
+        if (!['ENGINE', 'FLAP', 'MAP'].includes(s) && engine && engine.st.armed) { engine.st.armed = false; log('INFO Engine Config disarmed (left it)'); }
+        if (s === 'MENU' || s === 'SPLASH') s = 'VITALS';      // no menu page: the apps' header switches between them
         screen = s; refresh();
     };
     const back = (to) => ({ t: '<  Back', f: () => go(to || 'MENU') });
@@ -217,11 +233,26 @@ async function startApp(rhmi) {
         if (!ui.visible) return;
         if (rendering) { again = true; return; }
         rendering = true;
-        try { await ui.render((S[screen] || S.MENU)()); } catch (e) { log('RENDER_FAILED ' + (e.stack || e)); }
+        try {
+            let gpu = false;
+            if (host && host.wanted()) {
+                const app = APPS[screen];
+                if (app) gpu = await host.show(app);
+            }
+            if (gpu) {
+                // the HMI's own rows stay empty while the GPU draws
+                if (mode !== 'gpu') { mode = 'gpu'; log('INFO screen: GPU (' + screen + ')'); await ui.render({ title: 'OVERBOOST', logo: false, lines: [], buttons: [] }); }
+            } else {
+                if (host) host.hide();
+                // graphics only: until the renderer shows the app, the HMI keeps just the title
+                if (mode !== 'text') { mode = 'text'; ui.reset(); }
+                await ui.render({ title: 'OVERBOOST', logo: false, lines: [], buttons: [] });
+            }
+        } catch (e) { log('RENDER_FAILED ' + (e.stack || e)); }
         rendering = false;
         if (again) { again = false; refresh(); }
     }
-    setInterval(() => { drag.tick(); if (ui.visible && screen !== 'SPLASH') refresh(); }, 500);
+    setInterval(() => { drag.tick(); if (ui.visible && mode !== 'gpu') refresh(); }, 500);
     ui.bind();
     // look for an update once, a little after the start (silently: only the Update button changes)
     setTimeout(() => upd.check().then(refresh), 25000);
@@ -229,11 +260,10 @@ async function startApp(rhmi) {
     // the screen is open (or was closed): the splash first time and after a pause, else where the user was
     ui.onVisible = (on) => {
         ui.visible = on;
-        if (!on) { hiddenAt = Date.now(); return; }
+        if (!on) { hiddenAt = Date.now(); if (host) host.hide(); mode = 'text'; return; }
         ui.reset();
         if (first || Date.now() - hiddenAt > 60000) {
-            first = false; screen = 'SPLASH'; refresh();
-            setTimeout(() => { if (screen === 'SPLASH') go('MENU'); }, 2500);
+            first = false; screen = 'VITALS'; refresh();
         } else refresh();
     };
     return { refresh, ui };

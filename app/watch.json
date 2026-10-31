@@ -67,5 +67,18 @@
       "statusGearboxDrive": "s",
       "DataPowerTrain2": "s"
     }
+  },
+  "de.bmw.infotainment.checkcontrol.CheckControlMaster": {
+    "instances": "1",
+    "attributes": {
+      "basicList": "rs"
+    }
+  },
+  "de.bmw.infotainment.KombiInterface_2": {
+    "instances": "1",
+    "attributes": {
+      "ccList": "rs",
+      "newCCMessage": "rs"
+    }
   }
 }

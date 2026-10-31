@@ -1,0 +1,9 @@
+{
+  "id": "overboost_update",
+  "title": "Update",
+  "version": "1.0.0",
+  "screens": [ { "name": "MAIN", "kind": "canvas", "title": "Update", "buttons": [] } ],
+  "settings": [
+    { "key": "theme", "label": "Theme", "type": "choice", "default": "m_tricolour", "options": [["m_tricolour", "M Tricolour"]] }
+  ]
+}

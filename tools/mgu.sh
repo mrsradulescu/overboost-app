@@ -65,7 +65,8 @@ preflight() {
     else
         hash_is "$MAIN" c96c81653952fd9b24e2718cead75b18c1a1d5be7b336f6f7053ce3c23490b33 || die 'Unsupported/modified MainApp firmware'
         [ "$reuse" = 0 ] || die 'No active existing hook to reuse'
-        [ ! -e "$PLATFORM" ] || die 'Inactive hook directory exists; inspect it before installation'
+        # a leftover folder without "enabled" (e.g. after an uninstall) is moved aside by install; one that is still enabled needs "persist"
+        if [ -e "$PLATFORM" ] && [ -f "$PLATFORM/enabled" ]; then die 'Inactive hook directory is still enabled; run Repair (persist) first'; fi
     fi
     node -e 'const fs=require("fs"),p=process.argv[1];const m=JSON.parse(fs.readFileSync(p+"/meta.json"));const a=JSON.parse(fs.readFileSync(p+"/source/package.json"));if(m.id!=="id8_bench_demo"||m.appletId!==20101||a.name!==m.id)throw Error("Unexpected kit app identity")' "$KIT/app"
     u=$(uid_of)
@@ -122,7 +123,10 @@ case "$cmd" in
         chown 12201:12201 "$REG/id8_bench_demo.json"; chmod 660 "$REG/id8_bench_demo.json"
         if [ "$mode" = owned ]; then
             if ! mounted; then
-                [ ! -e "$PLATFORM" ] || die 'Inactive hook directory exists; inspect it before installation'
+                if [ -e "$PLATFORM" ]; then
+                    mv "$PLATFORM" "$B/stale-hook"
+                    echo "Old hook folder without 'enabled' moved to $B/stale-hook"
+                fi
                 mkdir "$PLATFORM"
                 cp -p "$MAIN" "$PLATFORM/stock-main.js"
                 node "$KIT/patch-mainapp.js" "$PLATFORM/stock-main.js" "$PLATFORM/main.js"

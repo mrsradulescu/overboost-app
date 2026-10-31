@@ -34,6 +34,10 @@ def build(sdk, output=None):
             shutil.copy2(module, src / 'javascript' / ('app.js' if module.name == 'loader.js' else module.name))
         for pack in sorted((ROOT / 'src').glob('*.pack')):
             shutil.copy2(pack, src / 'javascript' / pack.name)
+        # the GPU screens: kit/ (the idrive7-apps drawing kit), apps/ (the apps' own code), the logo's pixels
+        for sub in ('kit', 'apps'):
+            shutil.copytree(ROOT / 'src' / sub, src / 'javascript' / sub)
+        shutil.copy2(ROOT / 'src/logo.rgba', src / 'javascript/logo.rgba')
         shutil.copy2(ROOT / 'app/version.json', src / 'javascript/version.json')
         shutil.copy2(ROOT / 'app/update-default.json', src / 'javascript/update-default.json')
         # the signals the logger listens to (app/watch.json) join the proxies of manifest.json;
