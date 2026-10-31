@@ -808,7 +808,7 @@ class Display {
             const SW = FULL.sideW, S = t.sel || t.accent, names = (tb.tabs || []).map((n) => String(n).toUpperCase());
             c.fillRect(0, cy, SW, H - cy, HMI.headBg);
             c.fillRect(SW - 2, cy, 2, H - cy, G.withAlpha('#ffffff', 0.22));
-            const th = Math.min(110, Math.floor((H - cy - 24 - (tb.badges && tb.badges.length ? 44 * tb.badges.length : 0)) / Math.max(1, names.length)));
+            const th = Math.min(110, Math.floor((H - cy - 24 - 0) / Math.max(1, names.length)));
             const vo = { align: 'center', font: 'bold', spacing: 1.2 };
             c.tabRects = [];
             names.forEach((n, i) => {
@@ -819,7 +819,8 @@ class Display {
                 c.text(n, SW / 2 + 3, y0 + th / 2 + size * 0.36, size, on ? (t.selText || '#ffffff') : t.dim, vo);
                 if (i < names.length - 1) c.fillRect(24, y0 + th - 1, SW - 48, 1, G.withAlpha('#ffffff', 0.14));
             });
-            (tb.badges || []).forEach((b, j) => G.badgeRow(c, t, SW - 14, H - 44 * (j + 1), 30, 17, [b]));
+            // the badges (TEST MODE): large, at the top right under the app buttons
+            G.badgeRow(c, t, W - 24, cy + 14, 50, 28, (tb.badges || []).filter(Boolean));
             end0 = W; sx = this.headEnd = W;
         } else {
             end0 = G.header(c, Object.assign({}, t, { bg: HMI.headBg }), hx, cy, HMI.status.x - pl.x - hx, FULL.headH,
