@@ -73,7 +73,7 @@ const FULL = {
     // the side margins are trimmed a little, so the content can be scaled up further
     src: { x: 12, y: 38, w: 1576, h: 482 },
 };
-FULL.headH = 80; FULL.chipsH = 88;   // OVERBOOST: row 1 = logo + app buttons (when chips are set), row 2 = the app's name and page tabs
+FULL.headH = 80; FULL.chipsH = 88; FULL.sideW = 230;   // OVERBOOST: row 1 = logo + app buttons (when chips are set), row 2 = the app's name and page tabs
 const brand = require('./brand');
 const LAYOUTS = ['full', 'standard'];
 
@@ -380,7 +380,7 @@ class Display {
         if (p.tab != null) return ((this.chromeRec && this.chromeRec.tabRects) || []).find((q) => q.i === p.tab) || null;
         if (p.tgt) return { x: p.tgt.x * k + pl.ox, y: p.tgt.y * k + pl.oy, w: p.tgt.w * k, h: p.tgt.h * k };
         if (p.bar) { const b = this.buttons().find((q) => q.id === p.bar); return b ? { x: b.x - this.barOff - pl.x, y: pl.h - this.barH(), w: b.w, h: this.barH() } : null; }
-        if (p.scroll) { const hx = HMI.left - pl.x; return { x: hx, y: this.headH(), w: pl.w - hx, h: pl.h - this.barH() - this.headH() }; }
+        if (p.scroll) { const hx = HMI.left - pl.x + this.sideW(); return { x: hx, y: this.headH(), w: pl.w - hx, h: pl.h - this.barH() - this.headH() }; }
         return null;
     }
     /**
@@ -539,13 +539,13 @@ class Display {
         } else {
             // the surface covers the whole screen, so the HMI's own bar can't show under the back
             // arrow column; the page content goes right of that column
-            const w = scr.w - HMI.left, h = scr.h, src = FULL.src;
+            const w = scr.w - HMI.left - this.sideW(), h = scr.h, src = FULL.src;
             const ah = h - this.headH() - this.barH();
             const s = Math.floor(Math.min(w / src.w, ah / src.h) * 1000) / 1000;
             pl = {
                 x: area.x, y: area.y, w: scr.w, h, full: true,
                 scale: s,
-                ox: HMI.left + Math.round((w - src.w * s) / 2 - src.x * s),
+                ox: HMI.left + this.sideW() + Math.round((w - src.w * s) / 2 - src.x * s),
                 oy: Math.round(this.headH() + (ah - src.h * s) / 2 - src.y * s),
             };
             // no bar under the page (the kit's, emptied): a page that reaches down (its panels, a sheet: it reads
@@ -802,18 +802,41 @@ class Display {
             });
             c.fillRect(0, cy - 2, W, 2, G.withAlpha('#ffffff', 0.22));
         }
-        const end0 = G.header(c, Object.assign({}, t, { bg: HMI.headBg }), hx, cy, HMI.status.x - pl.x - hx, FULL.headH,
-            this.chips ? '' : (this.screen.title || this.spec.title), tb.tabs, tb.sel, tb.badges, true, true, !!this.chips);
+        let end0 = 0, sx;
+        if (this.chips) {
+            // the page tabs, one under the other, down the left edge
+            const SW = FULL.sideW, S = t.sel || t.accent, names = (tb.tabs || []).map((n) => String(n).toUpperCase());
+            c.fillRect(0, cy, SW, H - cy, HMI.headBg);
+            c.fillRect(SW - 2, cy, 2, H - cy, G.withAlpha('#ffffff', 0.22));
+            const th = Math.min(110, Math.floor((H - cy - 24 - (tb.badges && tb.badges.length ? 44 * tb.badges.length : 0)) / Math.max(1, names.length)));
+            const vo = { align: 'center', font: 'bold', spacing: 1.2 };
+            c.tabRects = [];
+            names.forEach((n, i) => {
+                const y0 = cy + 12 + i * th, on = i === tb.sel;
+                c.tabRects.push({ i, x: 0, y: y0, w: SW, h: th });
+                if (on) { c.gradientRect(0, y0, SW - 2, th, [[0, G.withAlpha(S, 0.28)], [1, G.withAlpha(S, 0)]]); c.fillRect(0, y0, 7, th, S); }
+                let size = 28; while (size > 18 && c.textWidth(n, size, vo) > SW - 36) size -= 2;
+                c.text(n, SW / 2 + 3, y0 + th / 2 + size * 0.36, size, on ? (t.selText || '#ffffff') : t.dim, vo);
+                if (i < names.length - 1) c.fillRect(24, y0 + th - 1, SW - 48, 1, G.withAlpha('#ffffff', 0.14));
+            });
+            (tb.badges || []).forEach((b, j) => G.badgeRow(c, t, SW - 14, H - 44 * (j + 1), 30, 17, [b]));
+            end0 = W; sx = this.headEnd = W;
+        } else {
+            end0 = G.header(c, Object.assign({}, t, { bg: HMI.headBg }), hx, cy, HMI.status.x - pl.x - hx, FULL.headH,
+                this.screen.title || this.spec.title, tb.tabs, tb.sel, tb.badges, true, true, false);
+        }
         const end = Math.max(end0, chipsEnd);
         const tr = (c.tabRects || []).concat(chipRects); c.tabRects = tr;
         // the HMI's own title is in the strip under the header: a narrower header (a sheet: no tabs) stays
         // as wide as the app's widest, so none of that title shows beside it
-        if (!this.sheet) this.headMax = Math.max(this.headMax || 0, end);
-        const sx = this.headEnd = Math.min(HMI.status.x - pl.x, Math.ceil(Math.max(end, this.headMax || 0)));
-        if (sx > end0) { c.fillRect(end0, cy, sx - end0, FULL.headH - 2, HMI.headBg); c.fillRect(end0, cy + FULL.headH - 2, sx - end0, 2, G.withAlpha('#ffffff', 0.22)); }
+        if (!this.chips) {
+            if (!this.sheet) this.headMax = Math.max(this.headMax || 0, end);
+            sx = this.headEnd = Math.min(HMI.status.x - pl.x, Math.ceil(Math.max(end, this.headMax || 0)));
+            if (sx > end0) { c.fillRect(end0, cy, sx - end0, FULL.headH - 2, HMI.headBg); c.fillRect(end0, cy + FULL.headH - 2, sx - end0, 2, G.withAlpha('#ffffff', 0.22)); }
+        }
         // the tab the controller is on (the kit holds it: Display._ccu)
         const ft = this.focusTab != null && (!this.sheet || this.sheetHead) && (c.tabRects || []).find((q) => q.i === this.focusTab);
-        if (ft) c.strokeRoundRect(ft.x + 4, ft.y + 10, ft.w - 8, ft.h - 20, 10, 2, t.sel || t.accent);
+        if (ft) { if (this.chips && ft.i < 1000) c.strokeRoundRect(ft.x + 8, ft.y + 6, ft.w - 18, ft.h - 12, 10, 2, t.sel || t.accent); else c.strokeRoundRect(ft.x + 4, ft.y + 10, ft.w - 8, ft.h - 20, 10, 2, t.sel || t.accent); }
         // the page button (or row) the controller is on, and one just pressed
         const k = pl.scale, onPage = (key) => !this.sheet && key && (this.pageTargets || []).find((q) => 'tgt:' + q.key === key);
         const pt = onPage(this.focusKey), pp = Date.now() - this.pressedT < 300 && onPage(this.pressed);
@@ -821,12 +844,11 @@ class Display {
         // the controller on a page that scrolls: a frame round the page; on a list (cv.scroll = { y, bar }) its
         // scroll bar in the colour of the selection (bar: where the page drew it, so it moves with the list)
         const sb = this.focusKey === 'scroll' && !this.sheet && this.pageScroll;
-        if (sb === true) c.strokeRoundRect(hx + 6, HH + 6, W - hx - 12, H - this.barH() - HH - 12, 14, 3, G.withAlpha(t.sel || t.accent, 0.8));
+        if (sb === true) c.strokeRoundRect(hx + this.sideW() + 6, HH + 6, W - hx - this.sideW() - 12, H - this.barH() - HH - 12, 14, 3, G.withAlpha(t.sel || t.accent, 0.8));
         else if (sb && sb.bar) c.roundRect((sb.bar.x - 2) * k + pl.ox, sb.bar.y * k + pl.oy, (sb.bar.w + 4) * k, sb.bar.h * k, (sb.bar.w / 2 + 2) * k, t.sel || t.accent);
         if (pt) c.strokeRoundRect(pt.x * k + pl.ox - 5, pt.y * k + pl.oy - 5, pt.w * k + 10, pt.h * k + 10, (pt.r != null ? pt.r : pt.h / 2) * k + 5, 3, t.sel || t.accent);
         // the strip's bottom edge continues under the see-through part
-        c.fillRect(sx, cy, W - sx, FULL.headH, HMI.headBg);
-        c.fillRect(sx, HH - 2, W - sx, 2, G.withAlpha('#ffffff', 0.22));
+        if (!this.chips) { c.fillRect(sx, cy, W - sx, FULL.headH, HMI.headBg); c.fillRect(sx, HH - 2, W - sx, 2, G.withAlpha('#ffffff', 0.22)); }
         // slim bar: each label over its HMI button
         const by = H - this.barH();
         const btns = this.buttons().map((b) => ({ id: b.id, label: b.label, x: b.x - this.barOff - pl.x, w: b.w }));
@@ -883,7 +905,9 @@ class Display {
         if (this.place) this._place();
     }
     /** Header height: 0 for "chrome": false (the app draws the whole screen itself, e.g. a game). */
-    headH() { return this.screen && this.screen.chrome === false ? 0 : FULL.headH + (this.chips ? FULL.chipsH : 0); }
+    headH() { return this.screen && this.screen.chrome === false ? 0 : this.chips ? FULL.chipsH : FULL.headH; }
+    /** OVERBOOST: the page tabs stand in a column down the left edge, under the app buttons */
+    sideW() { return this.chips && !(this.screen && this.screen.chrome === false) ? FULL.sideW : 0; }
 
     /**
      * The HMI's bar buttons in screen pixels, unscrolled: [{ id, label, x, w }]. Where the kit runs
