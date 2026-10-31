@@ -24,7 +24,7 @@ function draw(cv, G, t, v, act) {
     // tabs up into the HMI's title strip; in preview it's a slim tab bar. ---
     const pages = v.pages || ['Exhaust Flap'];
     const page = pages.indexOf(v.page) >= 0 ? v.page : pages[0];
-    G.frame(cv, t, pages, pages.indexOf(page), [v.simulated ? { text: 'SIM', color: t.warn || '#d29922' } : null]);
+    G.frame(cv, t, pages, pages.indexOf(page), [v.simulated ? { text: 'SIMULATED', color: t.warn || '#d29922', blink: true } : null]);
 
     // --- the house content panel (grey card) over the whole content area, EXACTLY like
     // the other apps (e.g. car_vitals). A panel that reaches the page bottom extends down
@@ -33,7 +33,9 @@ function draw(cv, G, t, v, act) {
     G.panel(cv, t, 24, G.TOP, W - 48, G.BOTTOM - G.TOP, null);
     // the panel's real bottom: the word and buttons sit on it, the figure grows into the room above them;
     // the buttons (where the kit runs the screen) end G.MARGIN over it, as the other apps' last lines
-    const bottom = G.pageBottom(cv) - (cv.own ? G.MARGIN : 0);
+    const bottom = G.pageBottom(cv) - (cv.own ? G.MARGIN : 0) - (v.simulated ? 22 : 0);
+    // always on the simulated version: what it does and where to change it
+    if (v.simulated) cv.text('This is a simulated version. Enable the live version in Settings > Control mode.', W / 2, G.pageBottom(cv) - 12, 20, t.warn || '#d29922', { align: 'center', font: 'bold' });
 
     if (page === 'Engine Map') return drawMap(cv, G, t, v.tune || {}, act || {}, bottom);
     if (page === 'Max Cooling') return drawCooling(cv, G, t, v.tune || {}, act || {}, bottom);

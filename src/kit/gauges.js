@@ -701,8 +701,9 @@ function badgeRow(cv, t, xr, y, h, size, badges) {
     let bx = xr;
     badges.forEach((b) => {
         const bw = Math.max(h * 3.5, cv.textWidth(b.text, size, opt) + h), c = t[b.color] || b.color || t.warn;
-        cv.roundRect(bx - bw, y, bw, h, h * 0.2, withAlpha(c, 0.2));
-        cv.text(b.text, bx - bw / 2, y + h / 2 + size * 0.36, size, c, opt);
+        const on = !b.blink || Date.now() % 1000 < 550;       // blink: on / dim, about once a second
+        cv.roundRect(bx - bw, y, bw, h, h * 0.2, withAlpha(c, on ? 0.35 : 0.1));
+        cv.text(b.text, bx - bw / 2, y + h / 2 + size * 0.36, size, on ? c : withAlpha(c, 0.35), opt);
         bx -= bw + h * 0.4;
     });
     return bx;
