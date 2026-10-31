@@ -264,7 +264,7 @@ async function startApp(rhmi) {
         ui.reset();
         if (first || Date.now() - hiddenAt > 60000) {
             first = false; screen = 'SPLASH'; refresh();
-            setTimeout(() => { if (screen === 'SPLASH') go('VITALS'); }, 5000);
+            setTimeout(() => { if (screen === 'SPLASH') go('VITALS'); }, 3000);
         } else refresh();
     };
     return { refresh, ui };
