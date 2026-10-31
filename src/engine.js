@@ -32,7 +32,9 @@ function create(signals, log) {
     const link = () => !!(st.diag && st.diag.available);
 
     async function send(sid, data) {
-        const r = await st.diag.physical(DME, sid, data, 3000);
+        // only the reply to this very request: a positive one (sid + 0x40) or a refusal of the same service
+        const mine = (u) => u[0] === sid + 0x40 || (u[0] === 0x7F && u[1] === sid);
+        const r = await st.diag.physical(DME, sid, data, 4000, mine);
         if (!r || !r.length) return { ok: false, reason: 'no answer' };
         if (r[0] === 0x7F) return { ok: false, reason: NRC[r[2]] || ('NRC ' + hex(r[2])) };
         return { ok: true, sid: r[0], data: r.slice(1) };

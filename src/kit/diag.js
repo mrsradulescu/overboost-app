@@ -183,6 +183,15 @@ function statusInfo(b) {
 // OVERBOOST: one diagnostic link for the whole process (Fault Scanner, M Vitals, Engine Config share the head unit's TASU proxy)
 const _init = Diag.prototype.init;
 Diag.prototype.init = function init() { return this._initP || (this._initP = _init.call(this)); };
+// one physical request at a time on the shared link: M Vitals polls the DME in the background, and an unfiltered reply
+// of one request used to be taken for the answer of another (a flap command then "got no answer")
+const _physical = Diag.prototype.physical;
+Diag.prototype.physical = function physical(...a) {
+    const run = () => _physical.apply(this, a);
+    const p = (this._q || Promise.resolve()).then(run, run);
+    this._q = p.catch(() => {});
+    return p;
+};
 let shared = null;
 function SharedDiag(signals, log) { if (!shared) shared = new Diag(signals, log); return shared; }
 SharedDiag.prototype = Diag.prototype;
