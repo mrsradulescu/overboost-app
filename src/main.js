@@ -287,7 +287,7 @@ async function main() {
     // like the Store: take the tile the manager handed over, init it, map it and enable it before the first open
     async function registerEntry() {
         try {
-            const raw = (app.getEntryPoints && app.getEntryPoints()) || [];
+            const raw = (app.getEntryPoints && await app.getEntryPoints()) || [];     // (a promise on this SDK)
             if (!registerEntry.logged) { registerEntry.logged = true; log('ENTRY_POINTS type=' + Object.prototype.toString.call(raw) + ' keys=' + Object.keys(raw).slice(0, 6).join(',')); }
             // an array, a Map / Set, or an object keyed by uuid, whichever the SDK hands over
             const eps = Array.isArray(raw) ? raw : typeof raw.values === 'function' && raw.values !== Object.prototype.values ? Array.from(raw.values()) : Object.keys(raw).map((k) => raw[k]);
@@ -314,15 +314,18 @@ async function main() {
     await app.initialized();
     log('INITIALIZED');
     try { if (process.env.OVERBOOST_TRIES) fs.unlinkSync(process.env.OVERBOOST_TRIES); } catch (e) { /* none */ }
-    await ctlPromise;
+    // (open the screen first: the app's own start-up goes on beside it)
     const initial = app.getLastExecutedEntryPointUuid();
     if (initial && ['ENTRY_POINT', 'BOOKMARK', 'LUM'].indexOf(String(app.startReason)) >= 0) {
         // the HMI may not know this app's screen yet (INVALID_UUID right after an install or a restart): keep trying, for about 40 s
+        // as the Store before it opens its screen: this app is the active one and the HMI shows it
+        try { await app.registerActive(); await app.registerHmiVisible(); } catch (e) { log('VISIBILITY_FAILED ' + e); }
         for (let i = 0; i < 27; i++) {
             if (await showScreen(initial, 'cold-start')) break;
             await registerEntry();
             await new Promise((r) => setTimeout(r, 1000));
         }
     }
+    await ctlPromise;
 }
 main().catch((e) => { log('START_FAILED ' + (e.stack || e)); process.exit(1); });
