@@ -284,6 +284,22 @@ async function main() {
     const state = rhmi.getByName('MAIN');
     await rhmi.mapEntryState(entry, state);
     log('MAP_OK entry=' + entry + ' state=' + state.getId());
+    // like the Store: take the tile the manager handed over, init it, map it and enable it before the first open
+    async function registerEntry() {
+        try {
+            const raw = (app.getEntryPoints && app.getEntryPoints()) || [];
+            if (!registerEntry.logged) { registerEntry.logged = true; log('ENTRY_POINTS type=' + Object.prototype.toString.call(raw) + ' keys=' + Object.keys(raw).slice(0, 6).join(',')); }
+            // an array, a Map / Set, or an object keyed by uuid, whichever the SDK hands over
+            const eps = Array.isArray(raw) ? raw : typeof raw.values === 'function' && raw.values !== Object.prototype.values ? Array.from(raw.values()) : Object.keys(raw).map((k) => raw[k]);
+            const ours = eps.find((ep) => ep && ep.getDescription && ep.getDescription().uuid === entry);
+            if (!ours) { log('ENTRY_MISSING (' + eps.length + ' handed over)'); return false; }
+            await ours.init();
+            await rhmi.mapEntryState(entry, state);
+            await ours.setAvailability('ENABLED');
+            log('ENTRY_ENABLED ' + entry);
+            return true;
+        } catch (e) { log('ENTRY_REGISTER_FAILED ' + e); return false; }
+    }
     const ctlPromise = startApp(rhmi);
     state.on('visible', (event) => log('STATE_VISIBLE ' + JSON.stringify(event)));
     rhmi.on('applicationStackChanged', (stack) => {
@@ -293,17 +309,7 @@ async function main() {
         const p = visible ? app.registerHmiVisible() : app.unregisterHmiVisible();
         Promise.resolve(p).catch((e) => log('VISIBILITY_FAILED ' + e));
     });
-    try {
-        // like the Store: take the tile the manager handed over, init it and enable it before the first open
-        const eps = (app.getEntryPoints && app.getEntryPoints()) || [];
-        const ours = eps.find((ep) => ep.getDescription().uuid === entry);
-        if (ours) {
-            await ours.init();
-            await rhmi.mapEntryState(entry, state);
-            await ours.setAvailability('ENABLED');
-            log('ENTRY_ENABLED ' + entry);
-        } else log('ENTRY_MISSING (' + eps.length + ' handed over)');
-    } catch (e) { log('ENTRY_REGISTER_FAILED ' + e); }
+    await registerEntry();
     await app.registerActive();
     await app.initialized();
     log('INITIALIZED');
@@ -314,7 +320,8 @@ async function main() {
         // the HMI may not know this app's screen yet (INVALID_UUID right after an install or a restart): keep trying, for about 40 s
         for (let i = 0; i < 27; i++) {
             if (await showScreen(initial, 'cold-start')) break;
-            await new Promise((r) => setTimeout(r, 1500));
+            await registerEntry();
+            await new Promise((r) => setTimeout(r, 1000));
         }
     }
 }
