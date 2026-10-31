@@ -224,9 +224,9 @@ function drawExhaust(cv, G, t, x, y, w, h, v) {
     const accent = (v.confirmed === 'OPEN' || v.requested === 'OPEN') ? (t.accent2 || '#81c4ff') : (t.crit || '#ef2b2d');
     const cx = x + w * 0.5, cy = y + h * 0.5;
     const r = Math.min(h * 0.40, w * 0.19);
-    const ox = r * 0.8, oy = r * 0.32;        // diagonal offset between the twin tips
-    drawTip(cv, G, t, cx - ox, cy + oy, r, a, accent);   // left/lower
-    drawTip(cv, G, t, cx + ox, cy - oy, r, a, accent);   // right/upper
+    const ox = r * 1.18, oy = 0;        // diagonal offset between the twin tips
+    drawTip(cv, G, t, cx - ox, cy, r, a, accent);   // left
+    drawTip(cv, G, t, cx + ox, cy, r, a, accent);   // right, side by side
 }
 
 module.exports = { draw, W, H };

@@ -794,7 +794,7 @@ class Display {
             const ch = cy - 24;
             items.forEach((it, k) => {
                 const w = Math.round(c.textWidth(String(it.label).toUpperCase(), 30, co)) + 64, on = it.screen === cur;
-                c.roundRect(chipsEnd, 12, w, ch, ch / 2, on ? G.withAlpha(t.sel || t.accent, 0.9) : G.withAlpha('#ffffff', 0.12));
+                c.roundRect(chipsEnd, 12, w, ch, 8, on ? G.withAlpha(t.sel || t.accent, 0.9) : G.withAlpha('#ffffff', 0.12));
                 c.text(String(it.label).toUpperCase(), chipsEnd + w / 2, 12 + ch / 2 + 11, 30, on ? (t.selText || '#ffffff') : t.text, co);
                 chipRects.push({ i: 1000 + k, x: chipsEnd, y: 0, w: w + 12, h: cy });
                 chipsEnd += w + 16;

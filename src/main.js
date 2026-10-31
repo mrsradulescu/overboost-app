@@ -297,6 +297,17 @@ async function main() {
         const p = visible ? app.registerHmiVisible() : app.unregisterHmiVisible();
         Promise.resolve(p).catch((e) => log('VISIBILITY_FAILED ' + e));
     });
+    try {
+        // like the Store: take the tile the manager handed over, init it and enable it before the first open
+        const eps = (app.getEntryPoints && app.getEntryPoints()) || [];
+        const ours = eps.find((ep) => ep.getDescription().uuid === entry);
+        if (ours) {
+            await ours.init();
+            await rhmi.mapEntryState(entry, state);
+            await ours.setAvailability('ENABLED');
+            log('ENTRY_ENABLED ' + entry);
+        } else log('ENTRY_MISSING (' + eps.length + ' handed over)');
+    } catch (e) { log('ENTRY_REGISTER_FAILED ' + e); }
     await app.registerActive();
     await app.initialized();
     log('INITIALIZED');
